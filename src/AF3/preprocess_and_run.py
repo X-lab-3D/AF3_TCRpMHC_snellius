@@ -131,7 +131,7 @@ def submit_MSA(input_folder, case_ID):
     command = (' ').join(["sbatch",  "--job-name", f"AF3_MSA_{case_ID}",
                             "--output", f"{input_folder}/log/%x_%j.out",
                             "--error", f"{input_folder}/log/%x_%j.err",
-                            "../templates/template_data_process.sh",
+                            "../AF3/templates/template_data_process.sh",
                             f"{input_folder}",
                 ])
 
@@ -153,7 +153,7 @@ def submit_AF3_inference(input_folder, case_ID):
     command = (' ').join(["sbatch",  "--job-name", f"AF3_inference_{case_ID}",
                             "--output", f"{input_folder}/log/%x_%j.out",
                             "--error", f"{input_folder}/log/%x_%j.err",
-                            "../templates/template_inference_a100.sh",
+                            "../AF3/templates/template_inference_a100.sh",
                             f"{input_folder}",
                 ])
 
@@ -184,6 +184,8 @@ if __name__ == "__main__":
     for case in df.iloc():
         cases[case[args.ID_column]] = {x : case[x] for x in args.chainID_columns}
 
+    #%%
+    ## Run according to mode
     if args.mode == "make_json":
 
         #generate the TCR AF3 submission files

@@ -6,15 +6,18 @@ the functions are added in the scripts.
 
 ## Contents
 - Alphafold3 run on snellius:
-    - **input_json_AF3_setup.py**: generates the Alphafold3 input json files for TCR with a random seed between 1-10000. 
-                                    input is a .csv file
-        - path: ./pre-processing
-        - output results: ./input_af3
-    - **data_process_tcr_run*.sh**: performs Alphafold3 dataprocessing (MSAs and template search) step.
-        - path: ./job
-        - output results: The defined output directory
-    - **inf_a100_tcr.sh**: performs Alphafold3 inference step with the dataprocessing input files
-        - path: ./job
+    -**./AF3**:
+        -**preprocess_and_run.py**: Module containing the functions to: Generate the AlphaFold3 JSON files, run the MSA and run the AF3 inference.
+            - mode: "make_json", "run_MSA", "run_inference" 
+            - input: CSV with IDs and sequences of the cases to run
+            - output: depending on the mode, JSON files, MSAs and AF3 models.
+    -**./AF3/templates**:
+        - **template_data_process*.sh**: performs Alphafold3 dataprocessing (MSAs and template search) step.
+            - path: ./job
+            - output results: The defined output directory
+        - **template_inference_a100.sh**: performs Alphafold3 inference step with the dataprocessing input files
+            - path: ./job
+
 - Post-processing: 
     - **copy_and_name_models_af3.py**: copies tcr model from each folder and rename based on folder + model ID (before: model.cif)
         - path: ./processing
