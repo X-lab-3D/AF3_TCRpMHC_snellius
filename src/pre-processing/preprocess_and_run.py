@@ -13,6 +13,14 @@ def create_parser():
     )
 
     parser.add_argument(
+        "--mode", "-m",
+        type=str,
+        required=True,
+        choices=["make_json", "run_MSA", "run_inference"],
+        help="Mode of operation. 'make_json' to generate AlphaFold3 JSON input files; 'run_MSA' to submit MSA generation jobs; 'run_inference' to submit AF3 inference jobs.",
+    )
+
+    parser.add_argument(
         "--input-csv", "-i",
         type=str,
         required=True,
@@ -36,7 +44,7 @@ def create_parser():
     parser.add_argument(
         "--ID-column", "-d",
         type=str,
-        default="TCRa",
+        default="PDBID",
         help="Column name for case ID in the CSV file."
     )
 
@@ -113,26 +121,87 @@ def make_AF3_json(chains_dict, ID, output_dir, seednumber=None):
     with open(output_path, 'w') as f:
         f.write(json.dumps(af3_setup, indent=2))
 
+def submit_MSA(input_folder, case_ID):
+
+    # Make log directory
+    if not os.path.exists(f"{input_folder}/log"):
+        os.makedirs(f"{input_folder}/log")
+
+    # Definse submission command
+    command = (' ').join(["sbatch",  "--job-name", f"AF3_MSA_{case_ID}",
+                            "--output", f"{input_folder}/log/%x_%j.out",
+                            "--error", f"{input_folder}/log/%x_%j.err",
+                            "../templates/template_data_process.sh",
+                            f"{input_folder}",
+                ])
+
+    # Log submission command       
+    with open(f"{input_folder}/log/{case_ID}_MSA_command.txt", 'w') as f:
+        f.write(command)
+
+    # Submit the job
+    print(f"Submitting MSA job for case {case_ID} with command:\n{command}")
+    os.popen(command).read()
+
+def submit_AF3_inference(input_folder, case_ID):
+
+    # Make log directory
+    if not os.path.exists(f"{input_folder}/log"):
+        os.makedirs(f"{input_folder}/log")
+
+    # Definse submission command
+    command = (' ').join(["sbatch",  "--job-name", f"AF3_inference_{case_ID}",
+                            "--output", f"{input_folder}/log/%x_%j.out",
+                            "--error", f"{input_folder}/log/%x_%j.err",
+                            "../templates/template_inference_a100.sh",
+                            f"{input_folder}",
+                ])
+
+    # Log submission command       
+    with open(f"{input_folder}/log/{case_ID}_AF3_inference_command.txt", 'w') as f:
+        f.write(command)
+
+    # Submit the job
+    print(f"Submitting AF3 inference job for case {case_ID} with command:\n{command}")
+    os.popen(command).read()
+
+
 if __name__ == "__main__":
 
     args = create_parser()
-    #Load data
-    df = pd.read_csv(args.input_csv)
 
     #Make output directory
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)
 
+    #Load data
+    df = pd.read_csv(args.input_csv)
+
     #save the unique TCRs and pMHC
-    #unique_pMHC = {}
     cases = {}
 
     #Find all unique TCR sequences in the data (and pMHC can be done)
     for case in df.iloc():
         cases[case[args.ID_column]] = {x : case[x] for x in args.chainID_columns}
 
-    #generate the TCR AF3 submission files
-    for i in range(args.num_seeds):
+    if args.mode == "make_json":
+
+        #generate the TCR AF3 submission files
         for case_ID, chains_dict in cases.items():
-            make_AF3_json(chains_dict, f"{case_ID}_rs{i}", args.output_dir, seednumber=None)
-    print(f"All done! JSON files generated in {args.output_dir}")
+            if not os.path.exists(f"{args.output_dir}/{case_ID}"):
+                os.makedirs(f"{args.output_dir}/{case_ID}")
+
+            for i in range(args.num_seeds):
+                make_AF3_json(chains_dict, f"{case_ID}_rs{i}", f"{args.output_dir}/{case_ID}", seednumber=None)
+
+        print(f"All done! JSON files generated in {args.output_dir}")
+
+    elif args.mode == "run_MSA":
+        # Submit MSA generation jobs
+        for case_ID, chains_dict in cases.items():
+            submit_MSA(f"{args.output_dir}/{case_ID}", case_ID)
+
+    elif args.mode == "run_inference":
+        # Submit AF3 inference jobs
+        for case_ID, chains_dict in cases.items():
+            submit_AF3_inference(f"{args.output_dir}/{case_ID}", case_ID)
