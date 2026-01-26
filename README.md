@@ -23,6 +23,7 @@ the functions are added in the scripts.
         - path: ./processing
     - **tcr_af3_to_pdb_renumb.py**: converts .cif tcr files into IMGT renumbered .pdb files
         - path: ./processing
+
 - clustering TCRs:
     - **make_script_profit.py**: generates a ProFit script and a multi file for each unique pdb_id. (preperation RMSD calculations)
         - ./clustering
@@ -36,7 +37,3 @@ the functions are added in the scripts.
         - ./clustering
     - **copy_centermodels.py**: script to copy the center models stated in the clustering text file with a new name (PDBID_c*.pdb) into a different directory
         - .clustering
-
-
-
-TODO: data_process_tcr_run make so 1 run = 1 case. remove multiple files, loop over 1 passing argument to submit.

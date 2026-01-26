@@ -78,10 +78,8 @@ def add_protein_chain(chain_id, seq):
 def make_AF3_json(chains_dict, ID, output_dir, seednumber=None):
     """
     Inputs:
-    seq_tcra : str
-        One letter amino acid sequence of the TCR alpha chain.
-    seq_tcrb : str
-        One letter amino acid sequence of the TCR beta chain.
+    chains_dict : dict
+        Dictionary containing chain IDs as keys and one letter amino acid sequences as values.
     ID : str
         Unique identifier used as the AlphaFold3 job name and JSON filename.
     output_dir : str
@@ -93,7 +91,7 @@ def make_AF3_json(chains_dict, ID, output_dir, seednumber=None):
 
     Output:
         Writes a single AlphaFold3-compatible JSON file to disk containing
-        two protein chains (A: TCR alpha, B: TCR beta).
+        the protein chains specified in the input dictionary.
 
     """
     #If no seednumber is provided, generate a random one
@@ -131,7 +129,7 @@ def submit_MSA(input_folder, case_ID):
     command = (' ').join(["sbatch",  "--job-name", f"AF3_MSA_{case_ID}",
                             "--output", f"{input_folder}/log/%x_%j.out",
                             "--error", f"{input_folder}/log/%x_%j.err",
-                            "../AF3/templates/template_data_process.sh",
+                            "./templates/template_data_process.sh",
                             f"{input_folder}",
                 ])
 
@@ -153,7 +151,7 @@ def submit_AF3_inference(input_folder, case_ID):
     command = (' ').join(["sbatch",  "--job-name", f"AF3_inference_{case_ID}",
                             "--output", f"{input_folder}/log/%x_%j.out",
                             "--error", f"{input_folder}/log/%x_%j.err",
-                            "../AF3/templates/template_inference_a100.sh",
+                            "./templates/template_inference_a100.sh",
                             f"{input_folder}",
                 ])
 
@@ -177,10 +175,8 @@ if __name__ == "__main__":
     #Load data
     df = pd.read_csv(args.input_csv)
 
-    #save the unique TCRs and pMHC
+    #Collect all the cases 
     cases = {}
-
-    #Find all unique TCR sequences in the data (and pMHC can be done)
     for case in df.iloc():
         cases[case[args.ID_column]] = {x : case[x] for x in args.chainID_columns}
 
@@ -188,7 +184,7 @@ if __name__ == "__main__":
     ## Run according to mode
     if args.mode == "make_json":
 
-        #generate the TCR AF3 submission files
+        #generate the AF3 submission files
         for case_ID, chains_dict in cases.items():
             if not os.path.exists(f"{args.output_dir}/{case_ID}"):
                 os.makedirs(f"{args.output_dir}/{case_ID}")
