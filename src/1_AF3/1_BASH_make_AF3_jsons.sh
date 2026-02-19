@@ -5,6 +5,6 @@
 python preprocess_and_run.py --mode make_json \
     --input-csv /home/marzellad/AF3_snellius/test/test.csv \
     --output-dir /home/marzellad/AF3_snellius/test/AF3_jsons/ \
-    --num-seeds 2 \
+    --num-seeds 5 \
     --ID-column PDBID \
     --chainID-columns TCRa TCRb #MHCa MHCb Peptide

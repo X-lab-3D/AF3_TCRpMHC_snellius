@@ -68,6 +68,10 @@ def mmcif_to_pdb(mmcif_path,output_dir):
 
 def run_anarci(pdb_path,output_dir, immunopdb= immunopdb):
     #shift TCR numbering due to overwriting residue numbers
+    #to extract only TCRa and TCRb (A and B) chains, you can use:
+    #  pdb_selchain -A {pdb_path} > tcra.pdb 
+    #  pdb_selchain -B {pdb_path} > tcrb.pdb
+    #  pdb_merge tcra.pdb tcrb.pdb > tcr_only.pdb
     command_sel_tcr_reres = f"pdb_reres -500 {pdb_path} > tcr_shifted.pdb"
     run_command(command_sel_tcr_reres)
 
@@ -88,7 +92,7 @@ def run_anarci(pdb_path,output_dir, immunopdb= immunopdb):
 
 if __name__ == "__main__":
 
-    parser = ArgumentParser(description="Clusters TCR structures based on ProFit RMSD outputs.")
+    parser = ArgumentParser(description="Renumbers TCR with ANARCI's immunopdb and outputs them as pdbs")
     
     parser.add_argument(
         "--input-dir",

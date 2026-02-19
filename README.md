@@ -44,6 +44,15 @@ Pipeline including AlphaFold3 spedup version (using TCRmodel2 database) and ProF
             # Calculate all vs all rmsd for all the chains in the models
             ALLVSALL
             ```
+            you can refer to ProFit's user manual: chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://structbio.vanderbilt.edu/xray/manuals/ProFit.pdf
+
+            ```
+            For TCR-pMHC named A,B,P,M,N, aligning on the MHC alpha and getting the TCR rmsd _should_ be:
+
+            ZONE M
+
+            LZONE A,B
+            ```
         - **multi_{PDBID}.txt**: a ProFits multi file contains all the paths for a specific PDB ID used in the ProFit scripts.
 
     - **run_rmsd_calc.sh**: calculates the pairwise rmsd and saves the log of ProFit in a specified directory. 
