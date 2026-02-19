@@ -26,10 +26,11 @@ AF3_CONTAINER_PATH=/sw/arch/RHEL9/EB_production/2024/software/AlphaFold/3.0.0-fo
 
 # path to directory of saved AF3 model weights
 #model_root=/home/ddiepenbroek
-model_root=$2
+model_root=$1
 
 # path to submission script AF3
-JSON_PATH=/projects/0/prjs1135/report_danielle/AF3_modified_database/test/8shi_tcrmodel2_data/8shi_tcrmodel2_data_data.json
+INPUT_PATH=$2
+#/projects/0/prjs1135/report_danielle/AF3_modified_database/test/8shi_tcrmodel2_data/8shi_tcrmodel2_data_data.json
 
 # Set the proper project root
 project_root=/projects/0/prjs1135/report_danielle/AF3_modified_database
@@ -38,20 +39,23 @@ bind_root=/projects
 #clock the time 
 start_time=$(date +%s)
 #
-cmd_args=" 
- --json_path $JSON_PATH
- --output_dir ${project_root}/test/
- --db_dir ${DATA_PATH}
- --pdb_database_path ${DATA_PATH}/mmcif_files_AF3_selection
- --run_data_pipeline=False"
- # --model_dir ${model_root}
- 
- # Probably does not work, run singularity exec instead.
- # alphafold-3.0.0.sif ${cmd_args}
- cmd="singularity exec --nv --bind ${bind_root} ${AF3_CONTAINER_PATH} python ${python_file} ${cmd_args}"
- echo 'running command:'
- echo $cmd
- eval $cmd
+for JSON_PATH in ${INPUT_PATH}/*.json; do
+    echo "Processing: $JSON_PATH"
+    cmd_args=" 
+    --json_path $JSON_PATH
+    --output_dir ${project_root}/test/
+    --db_dir ${DATA_PATH}
+    --pdb_database_path ${DATA_PATH}/mmcif_files_AF3_selection
+    --run_data_pipeline=False
+    --model_dir ${model_root}"
+    
+    # Probably does not work, run singularity exec instead.
+    # alphafold-3.0.0.sif ${cmd_args}
+    cmd="singularity exec --nv --bind ${bind_root} ${AF3_CONTAINER_PATH} python ${python_file} ${cmd_args}"
+    echo 'running command:'
+    echo $cmd
+    eval $cmd
+done
 
 #clock the end time
 end_time=$(date +%s)
