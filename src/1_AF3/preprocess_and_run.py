@@ -3,10 +3,10 @@ import json
 import pandas as pd
 import numpy as np
 from numpy import random
+import argparse
 
 
 def create_parser():
-    import argparse
 
     parser = argparse.ArgumentParser(
         description="Generate <-num-seeds> AlphaFold3 JSON input files for each case (row) in the input CSV file."

@@ -1,6 +1,7 @@
 import glob
 import os
 import shutil
+from argparse import ArgumentParser
 
 """
 This copies the models in the alphafold3 output directory into a new output directory and renames them.
@@ -16,8 +17,24 @@ output: copied models with the directory name and sample number
 
 """
 
-model_dir = "/projects/0/prjs1135/SwiftTCR/Alphafold/ensemble/output_af3"
-output_dir = "/projects/0/prjs1135/SwiftTCR/Alphafold/ensemble/processed_tcrs/all_tcrs"
+parser = ArgumentParser(description="Copies and renames Alphafold3 models.")
+
+parser.add_argument(
+    "--model-dir", "-m",
+    type=str,
+    required=True,
+    help="Path to the Alphafold3 output directory",
+)
+parser.add_argument(
+    "--output-dir", "-o",
+    type=str,
+    required=True,
+    help="Directory to save the copied and renamed models",
+    )
+
+args = parser.parse_args()
+model_dir = args.model_dir
+output_dir = args.output_dir
 
 
 for dir1 in glob.glob(f"{model_dir}/*"):

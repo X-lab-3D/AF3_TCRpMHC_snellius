@@ -5,6 +5,7 @@ from sklearn.cluster import AgglomerativeClustering
 from io import StringIO
 import numpy as np
 import pandas as pd
+from argparse import ArgumentParser
 
 """
 Script to cluster the TCRs using the rmsd text file from profit. 

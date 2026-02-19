@@ -4,6 +4,7 @@ import glob
 import warnings
 import subprocess
 from Bio.PDB import MMCIFParser, PDBIO
+from argparse import ArgumentParser
 
 """
 Script converts mmcif to pdb and renumbers them using ANARCI's immunopdb script.
@@ -11,10 +12,7 @@ Script converts mmcif to pdb and renumbers them using ANARCI's immunopdb script.
 ANARCI github: https://github.com/oxpig/ANARCI
 """
 
-#directory Immunopdb script of ANARCI
-immunopdb = "/home/ddiepenbroek/ANARCI/Example_scripts_and_sequences/ImmunoPDB.py"
-
-def main(mmcif_path,outputdir):
+def main(mmcif_path,outputdir, immunopdb):
     """
     This script converts a mmcif to a pdb file and renumbers the TCR structure
     to IMGT numbering appying ANARCI.
@@ -68,7 +66,7 @@ def mmcif_to_pdb(mmcif_path,output_dir):
 
     return output_pdb
 
-def run_anarci(pdb_path,output_dir):
+def run_anarci(pdb_path,output_dir, immunopdb= immunopdb):
     #shift TCR numbering due to overwriting residue numbers
     command_sel_tcr_reres = f"pdb_reres -500 {pdb_path} > tcr_shifted.pdb"
     run_command(command_sel_tcr_reres)
@@ -90,12 +88,34 @@ def run_anarci(pdb_path,output_dir):
 
 if __name__ == "__main__":
 
-    #input and output directory
-    input_dir = "/projects/0/prjs1135/SwiftTCR/Alphafold/ensemble/processed_tcrs/all_tcrs"
-    output_dir = "/projects/0/prjs1135/SwiftTCR/Alphafold/ensemble/processed_tcrs/renumbered"
+    parser = ArgumentParser(description="Clusters TCR structures based on ProFit RMSD outputs.")
+    
+    parser.add_argument(
+        "--input-dir",
+        type=str,
+        required=True,
+        help="Directory containing RMSD .txt files from ProFit",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        required=True,
+        help="Directory where clustering outputs will be written",
+    )
+    parser.add_argument(
+        "--immunopdb-path",
+        type=str,
+        help="Path to the ImmunoPDB script of ANARCI",
+        default="/projects/0/prjs1135/software/ANARCI/Example_scripts_and_sequences/ImmunoPDB.py"
+    )
+
+    args = parser.parse_args()
+    immunopdb = args.immunopdb_path
+    input_dir = args.input_dir
+    output_dir = args.output_dir
 
     #loop over input dir 
     for path in glob.glob(f"{input_dir}/*"):
         id_output = os.path.basename(path).split(".")[0]
         if  path.endswith(".cif"):
-            main(path,output_dir)
+            main(path,output_dir, immunopdb)
