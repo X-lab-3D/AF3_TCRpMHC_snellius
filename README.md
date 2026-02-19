@@ -1,8 +1,6 @@
 # Ensemble Models
 
-This folder contains all the scripts and documents used to generate and process 
-the Alphafold3 models related to the ensemble approach. Detailed information about 
-the functions are added in the scripts.
+Pipeline including AlphaFold3 spedup version (using TCRmodel2 database) and ProFit rmsd calculation and clustering.
 
 ## Contents
 - Alphafold3 run on snellius:

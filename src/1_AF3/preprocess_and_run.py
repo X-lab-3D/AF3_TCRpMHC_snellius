@@ -119,17 +119,32 @@ def make_AF3_json(chains_dict, ID, output_dir, seednumber=None):
     with open(output_path, 'w') as f:
         f.write(json.dumps(af3_setup, indent=2))
 
-def submit_MSA(input_folder, case_ID):
-
+def submit_MSA(input_folder, case_ID, tcrpmhc_specific=False):
+    '''
+    Submits a job to generate MSAs for the given case using the template_data_process.sh script.
+    Inputs:
+        input_folder : str
+            Directory containing the input JSON file(s) for the case.
+        case_ID : str
+            Unique identifier for the case, used in job naming and logging.
+        tcrpmhc_specific : bool, optional
+            If True, uses the template script calling TCR-pMHC optimized databases for speed. 
+            Defaults to False.
+    '''
     # Make log directory
     if not os.path.exists(f"{input_folder}/log"):
         os.makedirs(f"{input_folder}/log")
+
+    if tcrpmhc_specific:
+        template_script = "./templates/template_data_process_spedup.sh"
+    else:
+        template_script = "./templates/template_data_process.sh"
 
     # Definse submission command
     command = (' ').join(["sbatch",  "--job-name", f"AF3_MSA_{case_ID}",
                             "--output", f"{input_folder}/log/%x_%j.out",
                             "--error", f"{input_folder}/log/%x_%j.err",
-                            "./templates/template_data_process.sh",
+                            template_script,
                             f"{input_folder}",
                 ])
 
@@ -141,18 +156,36 @@ def submit_MSA(input_folder, case_ID):
     print(f"Submitting MSA job for case {case_ID} with command:\n{command}")
     os.popen(command).read()
 
-def submit_AF3_inference(input_folder, case_ID):
-
+def submit_AF3_inference(input_folder, case_ID, tcrpmhc_specific=False, model_weights='/home/ddiepenbroek'):
+    '''
+    Submits a job to run AF3 inference for the given case using the template_inference_a100.sh script.
+    Inputs:
+        input_folder : str
+            Directory containing the input JSON file(s) for the case.
+        case_ID : str
+            Unique identifier for the case, used in job naming and logging.
+        tcrpmhc_specific : bool, optional
+            If True, uses the template script calling TCR-pMHC optimized databases for speed.
+            Defaults to False.
+        model_weights : str, optional
+            Path to the directory containing the AF3 model weights. Defaults to '/home/ddiepenbroek'.
+    '''
     # Make log directory
     if not os.path.exists(f"{input_folder}/log"):
         os.makedirs(f"{input_folder}/log")
 
     # Definse submission command
+    if tcrpmhc_specific:
+        template_script = "./templates/template_inference_a100_spedup.sh"
+    else:
+        template_script = "./templates/template_inference_a100.sh"
+
     command = (' ').join(["sbatch",  "--job-name", f"AF3_inference_{case_ID}",
                             "--output", f"{input_folder}/log/%x_%j.out",
                             "--error", f"{input_folder}/log/%x_%j.err",
-                            "./templates/template_inference_a100.sh",
+                            template_script,
                             f"{input_folder}",
+                            f"{model_weights}"
                 ])
 
     # Log submission command       
