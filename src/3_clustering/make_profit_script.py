@@ -39,22 +39,22 @@ def generate_multi_file(path_list,output_dir,name_file):
         f.write("\n".join(path_list))
     return output_path
 
-def script_tcr_pairwise_rmsd(structure_file,output_dir,name_file):
+def make_pairwise_rmsd_script(structure_file,output_dir,name_file,template_script='./template_TCR_rmsd.txt'):
     """
     input:  structure file = list of paths to add in the multifile
             output_dir = the output directory to place the script for profit.
             name_file = unique identifier to label the output
-
+            template_script = path to the template script for ProFit RMSD calculation
     """
 
     # generate script to calculate overall
-    structure_command = f"MULTI {structure_file}"
-    command_list = [structure_command,"ATOMS N,CA,C,O","ZONE -26","ZONE 39-55","ZONE 66-104","ZONE 118-","ALLVSALL"]
+    with open(template_script, "r") as f:
+        template = f.read()
+        template = template.replace("{MULTI_FILE}", structure_file)
 
     output_path = os.path.join(output_dir,f"calc_tcr_rmsd_{name_file}.txt")
-
     with open(output_path, "w") as f:
-        f.write("\n".join(command_list))
+        f.write(template)
 
 
 if __name__ == "__main__":
@@ -76,11 +76,17 @@ if __name__ == "__main__":
         default="/projects/0/prjs1135/SwiftTCR/Alphafold/ensemble/scripts/clustering/profit_input",
         help="Directory to write ProFit multi-files",
     )
+    parser.add_argument(
+        "--template-script","-t",
+        default="./template_TCR_rmsd.txt",
+        help="Path to the template script for ProFit RMSD calculation",
+    )
 
     args = parser.parse_args()
     input_dir = args.input_dir
     output_dir = args.output_dir
     output_dir_multi = args.output_dir_multi
+    template_script = args.template_script
 
     os.makedirs(output_dir, exist_ok=True)
     os.makedirs(output_dir_multi, exist_ok=True)
@@ -96,4 +102,4 @@ if __name__ == "__main__":
 
     for pdb_id, paths in groups.items():
         output_mult = generate_multi_file(paths,output_dir_multi,pdb_id)
-        script_tcr_pairwise_rmsd(output_mult,output_dir,pdb_id)
+        make_pairwise_rmsd_script(output_mult,output_dir,pdb_id,template_script)
