@@ -21,6 +21,12 @@ def create_parser():
     )
 
     parser.add_argument(
+        "--tcrpmhc-specific", "-t",
+        action='store_true',
+        help="If set, uses template scripts that call TCR-pMHC optimized databases for speed. Only applicable for 'run_MSA' and 'run_inference' modes."
+    )
+    
+    parser.add_argument(
         "--input-csv", "-i",
         type=str,
         required=True,
@@ -184,8 +190,9 @@ def submit_AF3_inference(input_folder, case_ID, tcrpmhc_specific=False, model_we
                             "--output", f"{input_folder}/log/%x_%j.out",
                             "--error", f"{input_folder}/log/%x_%j.err",
                             template_script,
+                            f"{model_weights}",
                             f"{input_folder}",
-                            f"{model_weights}"
+                            
                 ])
 
     # Log submission command       
@@ -223,16 +230,17 @@ if __name__ == "__main__":
                 os.makedirs(f"{args.output_dir}/{case_ID}")
 
             for i in range(args.num_seeds):
-                make_AF3_json(chains_dict, f"{case_ID}_rs{i}", f"{args.output_dir}/{case_ID}", seednumber=None)
+                make_AF3_json(chains_dict, f"{case_ID}_rs{i}", f"{args.output_dir}/{case_ID}",
+                             seednumber=None)
 
         print(f"All done! JSON files generated in {args.output_dir}")
 
     elif args.mode == "run_MSA":
         # Submit MSA generation jobs
         for case_ID, chains_dict in cases.items():
-            submit_MSA(f"{args.output_dir}/{case_ID}", case_ID)
+            submit_MSA(f"{args.output_dir}/{case_ID}", case_ID, tcrpmhc_specific=args.tcrpmhc_specific)
 
     elif args.mode == "run_inference":
         # Submit AF3 inference jobs
         for case_ID, chains_dict in cases.items():
-            submit_AF3_inference(f"{args.output_dir}/{case_ID}", case_ID)
+            submit_AF3_inference(f"{args.output_dir}/{case_ID}", case_ID, tcrpmhc_specific=args.tcrpmhc_specific)
