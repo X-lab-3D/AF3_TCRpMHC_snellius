@@ -33,17 +33,16 @@ INPUT_PATH=$2
 #/projects/0/prjs1135/report_danielle/AF3_modified_database/test/8shi_tcrmodel2_data/8shi_tcrmodel2_data_data.json
 
 # Set the proper project root
-project_root=/projects/0/prjs1135/report_danielle/AF3_modified_database
 bind_root=/projects
 
 #clock the time 
 start_time=$(date +%s)
 #
-for JSON_PATH in ${INPUT_PATH}/*.json; do
+for JSON_PATH in ${INPUT_PATH}/output_AF3_MSA/*_rs*/*.json; do
     echo "Processing: $JSON_PATH"
     cmd_args=" 
     --json_path $JSON_PATH
-    --output_dir ${project_root}/test/
+    --output_dir ${INPUT_PATH}/AF3_inference_output/
     --db_dir ${DATA_PATH}
     --pdb_database_path ${DATA_PATH}/mmcif_files_AF3_selection
     --run_data_pipeline=False

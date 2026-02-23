@@ -82,7 +82,9 @@ if __name__ == "__main__":
     for file in glob.glob(f"{cluster_dir}/*"):
         pdb = os.path.basename(file).split(".")[0]
         for path_dict in glob.glob(f"{path_dir}/*"):
-            pdb_d = os.path.basename(path_dict).split("_")[2]
+            pdb_d = os.path.basename(path_dict).split('/')[-1].split("_")[3]
             if pdb_d == pdb:
                 copy_center_models_from_txt(file, path_dict, output_dir)
+            else:
+                print(f"Warning: No path_dict found for {pdb} in {path_dir}, json pdb_d: {pdb_d}")
 

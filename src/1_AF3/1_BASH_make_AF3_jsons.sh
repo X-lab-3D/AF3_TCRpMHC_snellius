@@ -3,8 +3,8 @@
 
 # Generate AlphaFold3 JSON input files
 python preprocess_and_run.py --mode make_json \
-    --input-csv /home/marzellad/AF3_snellius/test/test.csv \
-    --output-dir /home/marzellad/AF3_snellius/test/AF3_jsons/ \
+    --input-csv /home/marzellad/AF3_TCRpMHC_snellius/test/test.csv \
+    --output-dir /projects/0/prjs1135/AF3_TCR_pipeline_test/AF3_jsons/ \
     --num-seeds 5 \
     --ID-column PDBID \
-    --chainID-columns TCRa TCRb #MHCa MHCb Peptide
+    --chainID-columns A B #M N P #Column ID has to be pdb-standard, one-letter uppercase

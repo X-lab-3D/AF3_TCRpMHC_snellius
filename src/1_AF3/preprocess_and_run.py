@@ -23,7 +23,7 @@ def create_parser():
     parser.add_argument(
         "--tcrpmhc-specific", "-t",
         action='store_true',
-        help="If set, uses template scripts that call TCR-pMHC optimized databases for speed. Only applicable for 'run_MSA' and 'run_inference' modes."
+        help="If set, uses template scripts that call TCRmodel2 Database for speed. Only applicable for 'run_MSA' and 'run_inference' modes."
     )
     
     parser.add_argument(
@@ -58,8 +58,14 @@ def create_parser():
         "--chainID-columns", "-c",
         type=str,
         nargs='+',
-        default=["TCRa", "TCRb"],
+        default=["A", "B"],
         help="Column name(s) for chain IDs in the CSV file. Can provide multiple column names.")
+
+    parser.add_argument(
+        "--model-weights", "-w",
+        type=str,
+        help="Path to the directory containing the AF3 model weights. Only applicable for 'run_inference' mode."
+    )
 
     return parser.parse_args()
 
@@ -141,10 +147,13 @@ def submit_MSA(input_folder, case_ID, tcrpmhc_specific=False):
     if not os.path.exists(f"{input_folder}/log"):
         os.makedirs(f"{input_folder}/log")
 
+    if not os.path.exists(f"{input_folder}/output_AF3_MSA"):
+        os.makedirs(f"{input_folder}/output_AF3_MSA")
+
     if tcrpmhc_specific:
-        template_script = "./templates/template_data_process_spedup.sh"
+        template_script = "./template_scripts/template_data_process_spedup.sh"
     else:
-        template_script = "./templates/template_data_process.sh"
+        template_script = "./template_scripts/template_data_process.sh"
 
     # Definse submission command
     command = (' ').join(["sbatch",  "--job-name", f"AF3_MSA_{case_ID}",
@@ -162,7 +171,7 @@ def submit_MSA(input_folder, case_ID, tcrpmhc_specific=False):
     print(f"Submitting MSA job for case {case_ID} with command:\n{command}")
     os.popen(command).read()
 
-def submit_AF3_inference(input_folder, case_ID, tcrpmhc_specific=False, model_weights='/home/ddiepenbroek'):
+def submit_AF3_inference(input_folder, case_ID, model_weights, tcrpmhc_specific=False):
     '''
     Submits a job to run AF3 inference for the given case using the template_inference_a100.sh script.
     Inputs:
@@ -182,9 +191,9 @@ def submit_AF3_inference(input_folder, case_ID, tcrpmhc_specific=False, model_we
 
     # Definse submission command
     if tcrpmhc_specific:
-        template_script = "./templates/template_inference_a100_spedup.sh"
+        template_script = "./template_scripts/template_inference_a100_spedup.sh"
     else:
-        template_script = "./templates/template_inference_a100.sh"
+        template_script = "./template_scripts/template_inference_a100.sh"
 
     command = (' ').join(["sbatch",  "--job-name", f"AF3_inference_{case_ID}",
                             "--output", f"{input_folder}/log/%x_%j.out",
@@ -243,4 +252,5 @@ if __name__ == "__main__":
     elif args.mode == "run_inference":
         # Submit AF3 inference jobs
         for case_ID, chains_dict in cases.items():
-            submit_AF3_inference(f"{args.output_dir}/{case_ID}", case_ID, tcrpmhc_specific=args.tcrpmhc_specific)
+            submit_AF3_inference(f"{args.output_dir}/{case_ID}", case_ID, 
+                                    model_weights=args.model_weights, tcrpmhc_specific=args.tcrpmhc_specific)

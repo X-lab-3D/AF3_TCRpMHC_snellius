@@ -50,7 +50,7 @@ def make_pairwise_rmsd_script(structure_file,output_dir,name_file,template_scrip
     # generate script to calculate overall
     with open(template_script, "r") as f:
         template = f.read()
-        template = template.replace("{MULTI_FILE}", structure_file)
+        template = template.replace("##MULTIFILE_PLACEHOLDER##", structure_file)
 
     output_path = os.path.join(output_dir,f"calc_tcr_rmsd_{name_file}.txt")
     with open(output_path, "w") as f:
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--template-script","-t",
-        default="./template_TCR_rmsd.txt",
+        default="./templates/template_TCR_rmsd.txt",
         help="Path to the template script for ProFit RMSD calculation",
     )
 

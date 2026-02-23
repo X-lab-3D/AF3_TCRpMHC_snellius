@@ -312,7 +312,7 @@ if __name__ == "__main__":
             print(f"[SKIP] Unexpected RMSD filename: {fname}")
             continue
 
-        pdb = parts[-1]   # altijd laatste deel → 1ao7
+        pdb = parts[-2]   # altijd laatste deel → 1ao7
         print(f"[DEBUG] Processing RMSD: {fname} → PDB = {pdb}")
 
         matched = False
@@ -334,3 +334,4 @@ if __name__ == "__main__":
 
         if not matched:
             print(f"[WARNING] No STRUCT match for {fname}")
+            print(f'Make sure pdb identifier "{pdb}" is being properly identifyied from the filename')

@@ -2,6 +2,19 @@
 
 Pipeline including AlphaFold3 spedup version (using TCRmodel2 database) and ProFit rmsd calculation and clustering.
 
+## Reguirements
+
+Required packages are listed in requirements.txt 
+Each user needs to request individually the AF3 weights from DeepMind.
+
+To install ANARCI, make sure you follow the steps in the correct order:
+```python
+conda install -c conda-forge biopython -y
+conda install -c bioconda hmmer=3.3.2 -y
+cd ANARCI
+python setup.py install
+```
+
 ## Contents
 - Alphafold3 run on snellius:
     -**./AF3**:</br>

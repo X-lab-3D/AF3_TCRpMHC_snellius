@@ -5,8 +5,6 @@
 #SBATCH --partition=genoa
 #SBATCH --cpus-per-task=24
 #SBATCH --time=01:00:00
-#SBATCH --error=/projects/0/prjs1135/report_danielle/AF3_modified_database/test/small_database_test_data_proc.err
-#SBATCH --output=/projects/0/prjs1135/report_danielle/AF3_modified_database/test/small_database_test_data_proc.out
 
 #load Alphafold
 module load 2024
@@ -60,6 +58,9 @@ cmd_args="--input_dir=${TMPDIR}/input_af3
  echo 'running command:'
  echo $cmd
  eval $cmd
+
+# Copy output files back to home directory
+cp -r ${TMPDIR}/output_af3/* $1/output_AF3_MSA/
 
 end_time=$(date +%s)
 elapsed=$(( end_time - start_time ))
